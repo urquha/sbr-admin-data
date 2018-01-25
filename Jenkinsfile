@@ -1,5 +1,4 @@
 #!groovy
-@Library('jenkins-pipeline-shared@feature/new-cf') _
 
 pipeline {
     environment {
@@ -49,6 +48,7 @@ pipeline {
                 }
             }
         }
+
         stage('Test'){
             agent any
             steps {
@@ -110,9 +110,9 @@ pipeline {
         stage('Package'){
             agent any
             steps {
-                colourText("info", "Building ${env.BUILD_ID} on ${env.JENKINS_URL} from branch ${env.BRANCH_NAME}")
+               // colourText("info", "Building ${env.BUILD_ID} on ${env.JENKINS_URL} from branch ${env.BRANCH_NAME}")
                 dir('gitlab') {
-                    git(url: "$GITLAB_URL/StatBusReg/${MODULE_NAME}-api.git", credentialsId: GITLAB_CREDS, branch: 'feature/hbase-rest')
+                    git(url: "$GITLAB_URL/StatBusReg/${MODULE_NAME}-api.git", credentialsId: GITLAB_CREDS, branch: 'develop')
                 }
                 // Replace fake VAT/PAYE data with real data
                 sh 'rm -rf conf/sample/201706/vat_data.csv'
@@ -193,16 +193,12 @@ pipeline {
 
         stage ('Package and Push Artifact') {
             agent any
-         /*   when {
-                branch DEPLOY_PROD
-            } */
             steps {
                 script {
                     env.NODE_STAGE = "Package and Push Artifact"
                 }
                 sh """
-                    $SBT clean compile package
-                    $SBT clean compile assembly
+                    $SBT 'set test in assembly := {}' clean compile assembly
                 """
                 copyToHBaseNode()
                 colourText("success", 'Package.')
@@ -225,7 +221,7 @@ pipeline {
                 milestone(1)
                 lock('Deployment Initiated') {
                     colourText("info", 'deployment in progress')
-                    // deploy()
+                    deploy()
                     colourText("success", 'Deploy.')
                 }
             }
@@ -288,11 +284,12 @@ def copyToHBaseNode() {
     sshagent(credentials: ["sbr-$DEPLOY_DEV-ci-ssh-key"]) {
         withCredentials([string(credentialsId: "sbr-hbase-node", variable: 'HBASE_NODE')]) {
             sh '''
-                scp ${WORKSPACE}/target/ons-sbr-admin-data-*.jar sbr-$DEPLOY_DEV-ci@$HBASE_NODE:$DEPLOY_DEV/$MODULE_NAME/lib
-		        echo "Successfully copied jar file to $MODULE_NAME/lib directory on $HBASE_NODE"
-	       ssh sbr-$DEPLOY_DEV-ci@$HBASE_NODE hdfs dfs -put -f $DEPLOY_DEV/$MODULE_NAME/lib/ons-sbr-admin-data-*.jar hdfs://prod1/user/sbr-$DEPLOY_DEV-ci/lib/
-		echo "Successfully copied jar file to HDFS"
-	    '''
+                ssh sbr-$DEPLOY_DEV-ci@$HBASE_NODE mkdir -p $MODULE_NAME/lib
+                scp ${WORKSPACE}/target/ons-sbr-admin-data-*.jar sbr-$DEPLOY_DEV-ci@$HBASE_NODE:$MODULE_NAME/lib/
+                echo "Successfully copied jar file to $MODULE_NAME/lib directory on $HBASE_NODE"
+                ssh sbr-$DEPLOY_DEV-ci@$HBASE_NODE hdfs dfs -put -f $MODULE_NAME/lib/ons-sbr-admin-data-*.jar hdfs://prod1/user/sbr-$DEPLOY_DEV-ci/lib/
+                echo "Successfully copied jar file to HDFS"
+	        '''
         }
     }
 }
