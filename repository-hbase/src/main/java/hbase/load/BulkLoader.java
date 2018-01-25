@@ -47,7 +47,7 @@ public class BulkLoader extends Configured implements Tool {
     static final String ROWKEY_POSITION = "csv.id.position";
     static final String HEADER_STRING = "csv.header.string";
     private static final int SUCCESS = 0;
-    private static final int ERROR = -1;
+    private static final int ERROR = -2;
     private static final int MIN_ARGS = 5;
     private static final int MAX_ARGS = 6;
     private static final int ARG_TABLE_NAME = 0;
