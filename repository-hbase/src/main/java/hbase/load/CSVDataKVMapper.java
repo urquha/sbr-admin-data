@@ -129,7 +129,7 @@ public class CSVDataKVMapper extends
             return csvParser.parseLine(value.toString());
         } catch (Exception e) {
             LOG.error("Cannot parse line '{}', error is: {}", value.toString(), e.getMessage());
-            System.out.println("Cannot parse line " + value.toString();
+            System.out.println("Cannot parse line " + value.toString());
             System.out.println("Error " +  e.getMessage());
             context.getCounter(this.getClass().getSimpleName(), "PARSE_ERRORS").increment(1);
             return null;
