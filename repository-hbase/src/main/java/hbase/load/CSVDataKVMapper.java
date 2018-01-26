@@ -41,9 +41,6 @@ public class CSVDataKVMapper extends
     private final byte[] columnFamily = toBytes("d");
     private int rowKeyFieldPosition;
 
-    public enum LoadCounters {
-        PARSE_ERRORS
-    };
 
 
     private String getHeaderString(Configuration conf) {

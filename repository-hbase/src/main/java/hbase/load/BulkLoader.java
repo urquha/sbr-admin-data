@@ -57,6 +57,9 @@ public class BulkLoader extends Configured implements Tool {
     private static final int ARG_CSV_HEADER_STRING = 4;
     private static final int ARG_HFILE_OUT_DIR = 5;
     private static final Logger LOG = LoggerFactory.getLogger(BulkLoader.class);
+    public enum LoadCounters {
+        PARSE_ERRORS
+    };
 
     private HBaseConnector connector;
 
@@ -155,7 +158,7 @@ public class BulkLoader extends Configured implements Tool {
                 }
             }
             jobOK = job.waitForCompletion(true);
-            errorCount =  job.getCounters().findCounter(CSVDataKVMapper.LoadCounters.PARSE_ERRORS).getValue();
+            errorCount =  job.getCounters().findCounter(LoadCounters.PARSE_ERRORS).getValue();
             System.out.println("Bad records count " + errorCount);
 
         } catch (Exception e) {
