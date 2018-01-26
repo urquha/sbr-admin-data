@@ -101,6 +101,7 @@ public class BulkLoader extends Configured implements Tool {
 
         // Time job
         Instant start = Instant.now();
+
         long errorCount = 0;
 
         Job job;
@@ -154,7 +155,7 @@ public class BulkLoader extends Configured implements Tool {
                 }
             }
             jobOK = job.waitForCompletion(true);
-            errorCount =  job.getCounters().findCounter(this.getClass().getSimpleName(),"PARSE_ERRORS").getValue();
+            errorCount =  job.getCounters().findCounter(CSVDataKVMapper.LoadCounters.PARSE_ERRORS).getValue();
             System.out.println("Bad records count " + errorCount);
 
         } catch (Exception e) {

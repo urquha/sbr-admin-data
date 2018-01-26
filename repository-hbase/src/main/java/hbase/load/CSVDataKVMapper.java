@@ -41,6 +41,11 @@ public class CSVDataKVMapper extends
     private final byte[] columnFamily = toBytes("d");
     private int rowKeyFieldPosition;
 
+    public enum LoadCounters {
+        PARSE_ERRORS
+    };
+
+
     private String getHeaderString(Configuration conf) {
         return conf.get(HEADER_STRING, "");
     }
@@ -131,7 +136,8 @@ public class CSVDataKVMapper extends
             LOG.error("Cannot parse line '{}', error is: {}", value.toString(), e.getMessage());
             System.out.println("Cannot parse line " + value.toString());
             System.out.println("Error " +  e.getMessage());
-            context.getCounter(this.getClass().getSimpleName(), "PARSE_ERRORS").increment(1);
+            //context.getCounter(this.getClass().getSimpleName(), "PARSE_ERRORS").increment(1);
+            context.getCounter(LoadCounters.PARSE_ERRORS).increment(1);
             return null;
         }
     }
