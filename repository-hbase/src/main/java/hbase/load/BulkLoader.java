@@ -170,9 +170,10 @@ public class BulkLoader extends Configured implements Tool {
             result = ToolRunner.run(connector.getConfiguration(), new BulkLoader(connector), args);
             System.out.println("Bulkload success");
         } catch (Exception e) {
-            e.printStackTrace();
             result = ERROR;
             System.out.println("Bulkload error");
+            e.printStackTrace();
+
         }
         System.exit(result);
     }
