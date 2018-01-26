@@ -1,30 +1,30 @@
 
 pipeline {
     agent any
-    environment {
-       RELEASE_TYPE = "PATCH"
+        environment {
+            RELEASE_TYPE = "PATCH"
 
-        BRANCH_DEV = "develop"
-        BRANCH_TEST = "release"
-        BRANCH_PROD = "master"
+            BRANCH_DEV = "develop"
+            BRANCH_TEST = "release"
+            BRANCH_PROD = "master"
 
-        DEPLOY_DEV = "dev"
-        DEPLOY_TEST = "test"
-        DEPLOY_PROD = "prod"
+            DEPLOY_DEV = "dev"
+            DEPLOY_TEST = "test"
+            DEPLOY_PROD = "prod"
 
-        CF_CREDS = "sbr-api-dev-secret-key"
+            CF_CREDS = "sbr-api-dev-secret-key"
 
-        GIT_TYPE = "Github"
-        GIT_CREDS = "github-sbr-user"
-        GITLAB_CREDS = "sbr-gitlab-id"
+            GIT_TYPE = "Github"
+            GIT_CREDS = "github-sbr-user"
+            GITLAB_CREDS = "sbr-gitlab-id"
 
-        ORGANIZATION = "ons"
-        TEAM = "sbr"
-        MODULE_NAME = "sbr-admin-data"
+            ORGANIZATION = "ons"
+            TEAM = "sbr"
+            MODULE_NAME = "sbr-admin-data"
 
-        // hbase config
-        TABLE_NAME = "enterprise"
-        NAMESPACE = "sbr_dev_db"
+            // hbase config
+            TABLE_NAME = "enterprise"
+            NAMESPACE = "sbr_dev_db"
     }
     options {
         skipDefaultCheckout()
@@ -90,11 +90,12 @@ def copyToHBaseNode() {
     sshagent(credentials: ["sbr-$DEPLOY_DEV-ci-ssh-key"]) {
         withCredentials([string(credentialsId: "sbr-hbase-node", variable: 'HBASE_NODE')]) {
             sh '''
-                scp ${WORKSPACE}/target/ons-sbr-admin-data-*.jar sbr-$DEPLOY_DEV-ci@$HBASE_NODE:$DEPLOY_DEV/$MODULE_NAME/lib
-		        echo "Successfully copied jar file to $MODULE_NAME/lib directory on $HBASE_NODE"
-	       ssh sbr-$DEPLOY_DEV-ci@$HBASE_NODE hdfs dfs -put -f $DEPLOY_DEV/$MODULE_NAME/lib/ons-sbr-admin-data-*.jar hdfs://prod1/user/sbr-$DEPLOY_DEV-ci/lib/
-		echo "Successfully copied jar file to HDFS"
-	    '''
+                ssh sbr-$DEPLOY_DEV-ci@$HBASE_NODE mkdir -p $MODULE_NAME/lib
+                scp ${WORKSPACE}/target/ons-sbr-admin-data-*.jar sbr-$DEPLOY_DEV-ci@$HBASE_NODE:$MODULE_NAME/lib/
+                echo "Successfully copied jar file to $MODULE_NAME/lib directory on $HBASE_NODE"
+                ssh sbr-$DEPLOY_DEV-ci@$HBASE_NODE hdfs dfs -put -f $MODULE_NAME/lib/ons-sbr-admin-data-*.jar hdfs://prod1/user/sbr-$DEPLOY_DEV-ci/lib/
+                echo "Successfully copied jar file to HDFS"
+	        '''
         }
     }
 }
