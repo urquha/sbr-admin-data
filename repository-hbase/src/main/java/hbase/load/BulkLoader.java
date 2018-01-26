@@ -95,11 +95,13 @@ public class BulkLoader extends Configured implements Tool {
     }
 
     private int load(String tableNameStr, String referencePeriod, String inputFile, String outputFilePath) {
+        boolean jobOK;
 
         LOG.info("Starting bulk hbase.load of data from file {} into table '{}' for reference period '{}'", inputFile, tableNameStr, referencePeriod);
 
         // Time job
         Instant start = Instant.now();
+        long errorCount = 0;
 
         Job job;
         try {
@@ -151,6 +153,10 @@ public class BulkLoader extends Configured implements Tool {
                     return ERROR;
                 }
             }
+            jobOK = job.waitForCompletion(true);
+            errorCount =  job.getCounters().findCounter(this.getClass().getSimpleName(),"PARSE_ERRORS").getValue();
+            System.out.println("Bad records count " + errorCount);
+
         } catch (Exception e) {
             LOG.error("Loading of data failed.", e);
             return ERROR;
