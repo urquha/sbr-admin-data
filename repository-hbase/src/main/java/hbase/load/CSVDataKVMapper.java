@@ -115,6 +115,7 @@ public class CSVDataKVMapper extends
                         columnNames = byteList.toArray(new byte[0][0]);
                     } catch (Exception e) {
                         LOG.error("Cannot parse column headers, error is: {}", e);
+                        System.out.println("Cannot parse " + e);
                         throw e;
                     }
                 }
