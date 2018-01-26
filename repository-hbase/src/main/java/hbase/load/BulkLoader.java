@@ -168,11 +168,11 @@ public class BulkLoader extends Configured implements Tool {
         try {
             HBaseConnector connector = new HBaseInstanceConnector();
             result = ToolRunner.run(connector.getConfiguration(), new BulkLoader(connector), args);
-            //System.exit(result);
+            System.out.println("Bulkload success");
         } catch (Exception e) {
             e.printStackTrace();
             result = ERROR;
-            //System.exit(ERROR);
+            System.out.println("Bulkload error");
         }
         System.exit(result);
     }
