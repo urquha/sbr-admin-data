@@ -178,7 +178,7 @@ public class CSVDataKVMapper extends
 
         try {
              context.write(rowKey, put);
-             mos.write("text", rowKeyStr, rowKey.get(), "text_file");
+             mos.write("text", rowKeyStr, "test", "text_file");
         }    catch (Exception e) {
             context.getCounter(LoadCounters.BAD_HBASE_WRITE_RECORDS).increment(1);
         }
