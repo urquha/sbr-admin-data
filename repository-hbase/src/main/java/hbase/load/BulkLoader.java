@@ -61,7 +61,8 @@ public class BulkLoader extends Configured implements Tool {
         GOOD_CSV_RECORDS,
         BAD_CSV_RECORDS,
         GOOD_HBASE_RECORDS,
-        BAD_HBASE_RECORDS
+        BAD_HBASE_RECORDS,
+        BAD_HBASE_WRITE_RECORDS
     };
 
     private HBaseConnector connector;
@@ -108,10 +109,6 @@ public class BulkLoader extends Configured implements Tool {
         // Time job
         Instant start = Instant.now();
 
-        long goodCsvCount = 0;
-        long badCsvCount = 0;
-        long goodHbaseCount = 0;
-        long badHbaseCount = 0;
 
         Job job;
         try {
@@ -163,6 +160,13 @@ public class BulkLoader extends Configured implements Tool {
                     return ERROR;
                 }
             }
+
+            long goodCsvCount = 0;
+            long badCsvCount = 0;
+            long goodHbaseCount = 0;
+            long badHbaseCount = 0;
+            long badHbaseWriteCount = 0;
+
             jobOK = job.waitForCompletion(true);
             goodCsvCount =  job.getCounters().findCounter(LoadCounters.GOOD_CSV_RECORDS).getValue();
             System.out.println("Good csv records count " + goodCsvCount);
@@ -171,7 +175,9 @@ public class BulkLoader extends Configured implements Tool {
             goodHbaseCount =  job.getCounters().findCounter(LoadCounters.GOOD_HBASE_RECORDS).getValue();
             System.out.println("Good HBase records count " + goodHbaseCount);
             badHbaseCount =  job.getCounters().findCounter(LoadCounters.BAD_HBASE_RECORDS).getValue();
-            System.out.println("Bad HBase count " + badHbaseCount);
+            System.out.println("Bad HBase records count " + badHbaseCount);
+            badHbaseWriteCount =  job.getCounters().findCounter(LoadCounters.BAD_HBASE_WRITE_RECORDS).getValue();
+            System.out.println("Bad HBase write records count " + badHbaseWriteCount);
 
         } catch (Exception e) {
             LOG.error("Loading of data failed.", e);

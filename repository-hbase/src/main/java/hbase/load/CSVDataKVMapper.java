@@ -146,14 +146,14 @@ public class CSVDataKVMapper extends
         rowKey.set(rowKeyStr.getBytes());
         Put put = new Put(rowKey.copyBytes());
 
+        context.getCounter(LoadCounters.GOOD_HBASE_RECORDS).increment(1);
+
         for (int i = 0; i < fields.length; i++) {
             if (!fields[i].isEmpty()) {
                 try {
                     put.add(new KeyValue(rowKey.get(), columnFamily, columnNames[i], fields[i].getBytes()));
-                    context.getCounter(LoadCounters.GOOD_HBASE_RECORDS).increment(1);
                 } catch (Exception e) {
                     LOG.error("Cannot write line '{}'", fields[0], e);
-                    context.getCounter(LoadCounters.BAD_HBASE_RECORDS).increment(1);
                     throw e;
                 }
             }
@@ -161,9 +161,17 @@ public class CSVDataKVMapper extends
         }
 
         // Add last updated column
-        put.add(new KeyValue(rowKey.get(), columnFamily, LAST_UPDATED_BY_COLUMN, LAST_UPDATED_BY_VALUE));
+        try {
+            put.add(new KeyValue(rowKey.get(), columnFamily, LAST_UPDATED_BY_COLUMN, LAST_UPDATED_BY_VALUE));
+        }  catch (Exception e) {
+            context.getCounter(LoadCounters.BAD_HBASE_RECORDS).increment(1);
+        }
 
-        context.write(rowKey, put);
+        try {
+             context.write(rowKey, put);
+        }    catch (Exception e) {
+            context.getCounter(LoadCounters.BAD_HBASE_WRITE_RECORDS).increment(1);
+        }
     }
 
 }
