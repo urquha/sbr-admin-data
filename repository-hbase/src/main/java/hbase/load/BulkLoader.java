@@ -165,13 +165,13 @@ public class BulkLoader extends Configured implements Tool {
             }
             jobOK = job.waitForCompletion(true);
             goodCsvCount =  job.getCounters().findCounter(LoadCounters.GOOD_CSV_RECORDS).getValue();
-            System.out.println("Bad records count " + goodCsvCount);
+            System.out.println("Good csv records count " + goodCsvCount);
             badCsvCount =  job.getCounters().findCounter(LoadCounters.BAD_CSV_RECORDS).getValue();
-            System.out.println("Bad records count " + badCsvCount);
-            goodHbaseCount =  job.getCounters().findCounter(LoadCounters.BAD_CSV_RECORDS).getValue();
-            System.out.println("Bad records count " + goodHbaseCount);
-            badHbaseCount =  job.getCounters().findCounter(LoadCounters.BAD_CSV_RECORDS).getValue();
-            System.out.println("Bad records count " + badHbaseCount);
+            System.out.println("Bad csv records count " + badCsvCount);
+            goodHbaseCount =  job.getCounters().findCounter(LoadCounters.GOOD_HBASE_RECORDS).getValue();
+            System.out.println("Good HBase records count " + goodHbaseCount);
+            badHbaseCount =  job.getCounters().findCounter(LoadCounters.BAD_HBASE_RECORDS).getValue();
+            System.out.println("Bad HBase count " + badHbaseCount);
 
         } catch (Exception e) {
             LOG.error("Loading of data failed.", e);
