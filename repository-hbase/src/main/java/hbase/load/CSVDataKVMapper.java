@@ -128,13 +128,14 @@ public class CSVDataKVMapper extends
 
     private String[] parseLine(Text value, Context context) {
         try {
+            context.getCounter(LoadCounters.GOOD_CSV_RECORDS).increment(1);
             return csvParser.parseLine(value.toString());
         } catch (Exception e) {
             LOG.error("Cannot parse line '{}', error is: {}", value.toString(), e.getMessage());
             System.out.println("Cannot parse line " + value.toString());
             System.out.println("Error " +  e.getMessage());
             //context.getCounter(this.getClass().getSimpleName(), "PARSE_ERRORS").increment(1);
-            context.getCounter(LoadCounters.PARSE_ERRORS).increment(1);
+            context.getCounter(LoadCounters.BAD_CSV_RECORDS).increment(1);
             return null;
         }
     }
@@ -149,8 +150,10 @@ public class CSVDataKVMapper extends
             if (!fields[i].isEmpty()) {
                 try {
                     put.add(new KeyValue(rowKey.get(), columnFamily, columnNames[i], fields[i].getBytes()));
+                    context.getCounter(LoadCounters.GOOD_HBASE_RECORDS).increment(1);
                 } catch (Exception e) {
                     LOG.error("Cannot write line '{}'", fields[0], e);
+                    context.getCounter(LoadCounters.BAD_HBASE_RECORDS).increment(1);
                     throw e;
                 }
             }

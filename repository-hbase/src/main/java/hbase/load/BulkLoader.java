@@ -58,7 +58,10 @@ public class BulkLoader extends Configured implements Tool {
     private static final int ARG_HFILE_OUT_DIR = 5;
     private static final Logger LOG = LoggerFactory.getLogger(BulkLoader.class);
     public enum LoadCounters {
-        PARSE_ERRORS
+        GOOD_CSV_RECORDS,
+        BAD_CSV_RECORDS,
+        GOOD_HBASE_RECORDS,
+        BAD_HBASE_RECORDS
     };
 
     private HBaseConnector connector;
@@ -105,7 +108,10 @@ public class BulkLoader extends Configured implements Tool {
         // Time job
         Instant start = Instant.now();
 
-        long errorCount = 0;
+        long goodCsvCount = 0;
+        long badCsvCount = 0;
+        long goodHbaseCount = 0;
+        long badHbaseCount = 0;
 
         Job job;
         try {
@@ -158,8 +164,14 @@ public class BulkLoader extends Configured implements Tool {
                 }
             }
             jobOK = job.waitForCompletion(true);
-            errorCount =  job.getCounters().findCounter(LoadCounters.PARSE_ERRORS).getValue();
-            System.out.println("Bad records count " + errorCount);
+            goodCsvCount =  job.getCounters().findCounter(LoadCounters.GOOD_CSV_RECORDS).getValue();
+            System.out.println("Bad records count " + goodCsvCount);
+            badCsvCount =  job.getCounters().findCounter(LoadCounters.BAD_CSV_RECORDS).getValue();
+            System.out.println("Bad records count " + badCsvCount);
+            goodHbaseCount =  job.getCounters().findCounter(LoadCounters.BAD_CSV_RECORDS).getValue();
+            System.out.println("Bad records count " + goodHbaseCount);
+            badHbaseCount =  job.getCounters().findCounter(LoadCounters.BAD_CSV_RECORDS).getValue();
+            System.out.println("Bad records count " + badHbaseCount);
 
         } catch (Exception e) {
             LOG.error("Loading of data failed.", e);
