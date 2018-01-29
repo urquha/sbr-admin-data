@@ -17,6 +17,9 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.io.Text;  // rkd
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
@@ -160,6 +163,11 @@ public class BulkLoader extends Configured implements Tool {
                     return ERROR;
                 }
             }
+
+            //additional output using TextOutputFormat.
+            //MultipleOutputs.addNamedOutput(job, "text", FileOutputFormat.class, Text.class, Text.class);
+            MultipleOutputs.addNamedOutput(job, "text", TextOutputFormat.class, Text.class, Text.class);
+
 
             long goodCsvCount = 0;
             long badCsvCount = 0;

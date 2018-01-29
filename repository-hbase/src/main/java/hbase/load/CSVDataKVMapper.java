@@ -9,6 +9,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
@@ -65,9 +66,12 @@ public class CSVDataKVMapper extends
         return columnNames;
     }
 
+    private MultipleOutputs mos;
+
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         Configuration conf = context.getConfiguration();
+        mos = new MultipleOutputs(context);
         rowKeyFieldPosition = getRowKeyFieldPosition(conf);
         LOG.debug("Id field is a position {} in CSV file", rowKeyFieldPosition);
         if (!useCsvHeaderAsColumnNames(conf)) {
@@ -86,6 +90,11 @@ public class CSVDataKVMapper extends
             throw new IllegalArgumentException("Property not set " + HEADER_STRING);
         }
         csvParser = new CSVParser();
+    }
+
+    @Override
+    protected void cleanup(Context context) throws IOException, InterruptedException {
+        mos.close();
     }
 
     @Override
@@ -169,6 +178,7 @@ public class CSVDataKVMapper extends
 
         try {
              context.write(rowKey, put);
+             mos.write("text", rowKeyStr, rowKey.get(), "text_file");
         }    catch (Exception e) {
             context.getCounter(LoadCounters.BAD_HBASE_WRITE_RECORDS).increment(1);
         }
